@@ -1,13 +1,28 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" ng-app="angularDocTalk" ng-controller="mainCtrl as ctrl">
 <head>
     <meta charset="utf-8"/>
     <title>Angular Doc Talk</title>
 
+    <link rel="stylesheet" href="lib/bootstrap-3.1.1-dist/css/bootstrap.css"/>
 </head>
 <body>
 
-  Hello doc talk.
+<form>
+    <input type="text" ng-model="ctrl.userSearchTerm"
+           typeahead="term for term in ctrl.searchTerms | filter:$viewValue | limitTo:8"
+           class="form-control" placeholder="Enter an AngularJS topic. e.g. '$http'">
+    <button ng-click="ctrl.search()">Search</button>
+</form>
+
+<iframe ng-src="{{ctrl.docUrl}}"></iframe>
+
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.js"></script>
+<script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js"></script>
+
+<script src="config/docData.js"></script>
+<script src="config/endpoints.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
