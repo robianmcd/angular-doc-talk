@@ -5,12 +5,13 @@
     <title>Angular Doc Talk</title>
 
     <link rel="stylesheet" href="lib/bootstrap-3.1.1-dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 
 
-<div class="container">
-    <h1>Angular Doc Talk</h1>
+<div class="container" ng-cloak>
+    <h1 class="text-center">&lt;Angular DocTalk&gt;</h1>
 
     <form class="form-group">
         <div class="input-group">
@@ -24,7 +25,7 @@
     </form>
 
     <div ng-show="ctrl.docUrl">
-        <div style="margin:0; padding:0; overflow:hidden">
+        <div class="well" style="margin:0; padding:0; overflow:hidden">
             <iframe ng-src="{{ctrl.docUrl}}"
                     style="overflow:hidden; height:400px; width:100%" height="100%" width="100%"></iframe>
         </div>
@@ -32,12 +33,20 @@
         <h3>Comments</h3>
 
         <form>
-            <div class="form-group">
-                <img ng-if="ctrl.auth.user" src="{{ctrl.auth.user.thirdPartyUserData.picture}}"
-                     alt="Profile picture"/>
-                <textarea class="form-control" rows="3" placeholder="Enter a comment."
-                          ng-model="ctrl.userComment"></textarea>
+            <div class="row form-group">
+                <div ng-if="ctrl.auth.user" class="col-xs-2 col-md-1">
+                    <img ng-src="{{ctrl.auth.user.thirdPartyUserData.picture}}"
+                         width="70px"
+                         alt="Profile picture"/>
+                </div>
+                <div class="col-xs-10 col-md-11">
+                    <textarea class="form-control"
+                              rows="3"
+                              placeholder="Enter a comment."
+                              ng-model="ctrl.userComment"></textarea>
+                </div>
             </div>
+
             <div ng-show="!ctrl.auth.user">
                 <button type="submit" class="btn btn-primary" ng-click="ctrl.loginWithGoogle()">
                     Log in with Google
@@ -45,18 +54,51 @@
             </div>
             <div ng-show="ctrl.auth.user">
                 <button type="submit" class="btn btn-primary" ng-click="ctrl.postComment()">Post</button>
-                <a href="" ng-click="ctrl.logout()">Logout</a>
+                <a class="pull-right" href="" ng-click="ctrl.logout()">Logout</a>
             </div>
-
         </form>
 
-        <ul>
-            <li ng-repeat="commentInfo in ctrl.commentsDb">
-                {{commentInfo}}
+        <div style="padding-top: 40px"></div>
+
+        <ul class="media-list">
+            <li class="media"
+                ng-repeat="commentInfo in ctrl.commentsForTopic | orderByPriority | orderBy:getSortField:true">
+                <img class="pull-left media-object"
+                     ng-src="{{commentInfo.poster.pic}}"
+                     width="70px"
+                     alt="Comment poster picture"/>
+
+                <div class="media-body">
+                    <div>
+                        <span class="comment-title">{{commentInfo.poster.name}}</span>
+                        <span class="horizontal-spacer"></span>
+                        <span>{{commentInfo.creationDate | date}}</span>
+                    </div>
+
+                    <p>
+                        {{commentInfo.comment}}
+                    </p>
+
+                    <span ng-show="ctrl.getCommentScore(commentInfo) !== 0" class="vote-score">
+                        {{ctrl.getCommentScore(commentInfo)}}
+                        <span class="horizontal-spacer"></span>
+                    </span>
+
+                    <a class="glyphicon glyphicon-thumbs-up"
+                       ng-click="ctrl.vote(commentInfo, ctrl.voteTypeEnum.UP)"
+                       ng-class="{'selected-up-vote': ctrl.userHasUpVotedComment(commentInfo)}"></a>
+
+                    <span class="horizontal-spacer"></span>
+
+                    <a class="glyphicon glyphicon-thumbs-down"
+                       ng-click="ctrl.vote(commentInfo, ctrl.voteTypeEnum.DOWN)"
+                       ng-class="{'selected-down-vote': ctrl.userHasDownVotedComment(commentInfo)}"></a>
+                </div>
             </li>
         </ul>
 
     </div>
+
 </div>
 
 

@@ -1,0 +1,25 @@
+.selected-up-vote, .selected-up-vote:hover {
+    color: green;
+    font-weight: bold;
+}
+
+.selected-down-vote, .selected-down-vote:hover {
+    color: red;
+    font-weight: bold;
+}
+
+.vote-score {
+    color: #269abc;
+    font-weight: bold;
+}
+
+.comment-title {
+    font-weight: 500;
+    line-height: 1.1;
+    font-size: 18px;
+}
+
+.horizontal-spacer {
+    padding-left: 4px;
+    padding-right: 4px;
+}
