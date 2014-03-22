@@ -1,16 +1,36 @@
 var app = angular.module('angularDocTalk', ['ui.bootstrap', 'firebase']);
 
-var MainCtrl = function($sce, $firebaseSimpleLogin, $firebase, $location, $scope) {
+var MainCtrl = function($scope, $rootScope, $sce, $firebaseSimpleLogin, $firebase, $location) {
     var _this = this;
 
+    this.$scope = $scope;
     this.$sce = $sce;
     this.$location = $location;
     this.$firebase = $firebase;
 
     this.voteTypeEnum = {DOWN: 0, UP: 1};
 
-    this.dbRef = new Firebase('https://angular-doc-talk.firebaseio.com');
+    if (!endpoints) {
+        var endpoints = {
+            firebaseUrl: 'https://angular-doc-talk.firebaseio.com'
+        };
+    }
+
+    this.dbRef = new Firebase(endpoints.firebaseUrl);
     this.auth = $firebaseSimpleLogin(this.dbRef);
+
+    $rootScope.$on("$firebaseSimpleLogin:login", function(e, user) {
+        _this.$firebase(_this.dbRef.child('user/' + user.uid)).$bind($scope, 'ctrl.userComment')
+            .then(function(unbind) {
+                _this.unbindUser = unbind;
+            });
+    });
+
+    $rootScope.$on("$firebaseSimpleLogin:logout", function(e, user) {
+        if (_this.unbindUser) {
+            _this.unbindUser();
+        }
+    });
 
     this.docTitles = [];
     this.docInfoByTitle = {};
@@ -31,6 +51,7 @@ var MainCtrl = function($sce, $firebaseSimpleLogin, $firebase, $location, $scope
 
             this.docTitles.push(title);
             curDocInfo.title = title;
+            curDocInfo.escapedTitle = this.escapeForFirebase(title);
             this.docInfoByTitle[title] = curDocInfo;
         }
     }
@@ -40,18 +61,14 @@ var MainCtrl = function($sce, $firebaseSimpleLogin, $firebase, $location, $scope
         this.userSearch = this.$location.search().search;
         this.search();
     }
-
-    $scope.getSortField = function(commentInfo) {
-        return _this.getCommentScore(commentInfo);
-    };
 };
 
 MainCtrl.prototype.search = function() {
     if (this.docInfoByTitle[this.userSearch]) {
         this.selectedDocInfo = this.docInfoByTitle[this.userSearch];
-        this.docUrl = this.$sce.trustAsResourceUrl("http://code.angularjs.org/1.2.14/docs/" + this.selectedDocInfo.outputPath);
+        this.docUrl = this.$sce.trustAsResourceUrl("//code.angularjs.org/1.2.14/docs/" + this.selectedDocInfo.outputPath);
 
-        this.commentsForTopic = this.$firebase(this.dbRef.child('comments/' + this.escapeForFirebase(this.selectedDocInfo.title)));
+        this.commentsForTopic = this.$firebase(this.dbRef.child('comments/' + this.selectedDocInfo.escapedTitle));
     }
     else {
         this.docUrl = "";
@@ -86,7 +103,7 @@ MainCtrl.prototype.vote = function(commentInfo, voteType) {
     var _this = this;
     if (!this.auth.user) {
         this.loginWithGoogle().then(function() {
-            _this.vote(commentInfo, voteType)
+            _this.vote(commentInfo, voteType);
         });
         return;
     }
@@ -135,7 +152,6 @@ MainCtrl.prototype.userHasDownVotedComment = function(commentInfo) {
 };
 
 MainCtrl.prototype.getSortField = function(commentInfo) {
-    console.log(this);
     return this.getCommentScore(commentInfo);
 };
 

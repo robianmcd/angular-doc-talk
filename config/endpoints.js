@@ -1,3 +1,3 @@
 var endpoints = {
-    firebaseUrl: ""
+    firebaseUrl: 'https://angular-doc-talk.firebaseio.com'
 };
