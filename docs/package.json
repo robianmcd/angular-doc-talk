@@ -1,0 +1,8 @@
+{
+    "name": "doc-talk-downloader",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "mkpath": "0.1.0"
+    }
+}

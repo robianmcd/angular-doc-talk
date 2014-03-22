@@ -6997,3 +6997,7 @@ var NG_PAGES = {
         "path": "example-example110-production"
     }
 };
+
+if (typeof exports !== 'undefined') {
+    exports.NG_PAGES = NG_PAGES;
+}

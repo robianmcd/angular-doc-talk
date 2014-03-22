@@ -1,10 +1,9 @@
 var app = angular.module('angularDocTalk', ['ui.bootstrap', 'firebase']);
 
-var MainCtrl = function($scope, $rootScope, $sce, $firebaseSimpleLogin, $firebase, $location) {
+var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $location) {
     var _this = this;
 
     this.$scope = $scope;
-    this.$sce = $sce;
     this.$location = $location;
     this.$firebase = $firebase;
 
@@ -66,7 +65,7 @@ var MainCtrl = function($scope, $rootScope, $sce, $firebaseSimpleLogin, $firebas
 MainCtrl.prototype.search = function() {
     if (this.docInfoByTitle[this.userSearch]) {
         this.selectedDocInfo = this.docInfoByTitle[this.userSearch];
-        this.docUrl = this.$sce.trustAsResourceUrl("//code.angularjs.org/1.2.14/docs/" + this.selectedDocInfo.outputPath);
+        this.docUrl = 'docs/' + this.selectedDocInfo.outputPath;
 
         this.commentsForTopic = this.$firebase(this.dbRef.child('comments/' + this.selectedDocInfo.escapedTitle));
     }
