@@ -154,6 +154,10 @@ MainCtrl.prototype.getSortField = function(commentInfo) {
     return this.getCommentScore(commentInfo);
 };
 
+MainCtrl.prototype.deleteComment = function(commentInfo) {
+    this.commentsForTopic.$remove(commentInfo.$id);
+};
+
 MainCtrl.prototype.escapeForFirebase = function(str) {
     return str.replace(/[\.#$\[\]\/]/g, '');
 };

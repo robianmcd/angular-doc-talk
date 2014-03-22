@@ -76,6 +76,12 @@
                         <span class="comment-title">{{commentInfo.poster.name}}</span>
                         <span class="horizontal-spacer"></span>
                         <span>{{commentInfo.creationDate | date}}</span>
+                        <span class="horizontal-spacer"></span>
+                        <button ng-click="ctrl.deleteComment(commentInfo)"
+                                ng-show="ctrl.auth.user && ctrl.auth.user.uid === commentInfo.poster.uid"
+                                class="btn btn-danger btn-xs">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
                     </div>
 
                     <p>
