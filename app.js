@@ -7,7 +7,7 @@ var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $lo
     this.$location = $location;
     this.$firebase = $firebase;
 
-    this.voteTypeEnum = {DOWN: -1, UP: 1, NO_VOTE: 0};
+    this.voteTypeEnum = {DOWN: -1, UP: 1};
 
     if (!endpoints) {
         var endpoints = {
@@ -105,6 +105,8 @@ MainCtrl.prototype.postComment = function() {
 
 MainCtrl.prototype.vote = function(commentInfo, voteType) {
     var _this = this;
+
+    //Log user in if they are not logged in and then try voting again.
     if (!this.auth.user) {
         this.loginWithGoogle().then(function() {
             _this.vote(commentInfo, voteType);
@@ -112,15 +114,14 @@ MainCtrl.prototype.vote = function(commentInfo, voteType) {
         return;
     }
 
-    this.votesForTopic[commentInfo.$id] = this.votesForTopic[commentInfo.$id] || {};
+    var firebaseUserVote = this.votesForTopic.$child(commentInfo.$id).$child(this.auth.user.uid);
 
-    if (this.votesForTopic[commentInfo.$id][this.auth.user.uid] === voteType) {
-        this.votesForTopic[commentInfo.$id][this.auth.user.uid] = this.voteTypeEnum.NO_VOTE;
+    if (this.votesForTopic[commentInfo.$id] &&
+        this.votesForTopic[commentInfo.$id][this.auth.user.uid] === voteType) {
+        firebaseUserVote.$remove();
     } else {
-        this.votesForTopic[commentInfo.$id][this.auth.user.uid] = voteType;
+        firebaseUserVote.$set(voteType);
     }
-
-    this.votesForTopic.$save();
 };
 
 MainCtrl.prototype.getCommentScore = function(commentInfo) {
