@@ -65,7 +65,7 @@
 
         <ul class="media-list">
             <li class="media"
-                ng-repeat="commentInfo in ctrl.commentsForTopic | orderByPriority | orderBy:[ctrl.getCommentScore,creationDate]:true">
+                ng-repeat="commentInfo in ctrl.commentsForTopic | orderByPriority | orderBy:[wrappedGetCommentScore,creationDate]:true">
                 <img class="pull-left media-object"
                      ng-src="{{commentInfo.poster.pic}}"
                      width="70px"
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.js"></script>
 <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js"></script>
 
 <script src="https://cdn.firebase.com/js/client/1.0.6/firebase.js"></script>

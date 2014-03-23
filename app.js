@@ -7,7 +7,7 @@ var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $lo
     this.$location = $location;
     this.$firebase = $firebase;
 
-    this.voteTypeEnum = {DOWN: 0, UP: 1};
+    this.voteTypeEnum = {DOWN: -1, UP: 1, NO_VOTE: 0};
 
     if (!endpoints) {
         var endpoints = {
@@ -34,7 +34,7 @@ var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $lo
     this.docTitles = [];
     this.docInfoByTitle = {};
 
-    for (key in NG_PAGES) {
+    for (var key in NG_PAGES) {
         //noinspection JSUnfilteredForInLoop
         var curDocInfo = NG_PAGES[key];
         if (curDocInfo.searchTerms && curDocInfo.searchTerms.titleWords) {
@@ -60,6 +60,10 @@ var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $lo
         this.userSearch = this.$location.search().search;
         this.search();
     }
+
+    $scope.wrappedGetCommentScore = function(commentInfo) {
+        return _this.getCommentScore(commentInfo);
+    }
 };
 
 MainCtrl.prototype.search = function() {
@@ -68,6 +72,7 @@ MainCtrl.prototype.search = function() {
         this.docUrl = 'docs/' + this.selectedDocInfo.outputPath;
 
         this.commentsForTopic = this.$firebase(this.dbRef.child('comments/' + this.selectedDocInfo.escapedTitle));
+        this.votesForTopic = this.$firebase(this.dbRef.child('votes/' + this.selectedDocInfo.escapedTitle));
     }
     else {
         this.docUrl = "";
@@ -107,51 +112,48 @@ MainCtrl.prototype.vote = function(commentInfo, voteType) {
         return;
     }
 
-    //Create these sets if they don't exist
-    commentInfo.upVoterSet = commentInfo.upVoterSet || {};
-    commentInfo.downVoterSet = commentInfo.downVoterSet || {};
+    this.votesForTopic[commentInfo.$id] = this.votesForTopic[commentInfo.$id] || {};
 
-    var clickedSet;
-    var unclickedSet;
-
-    if (voteType === this.voteTypeEnum.UP) {
-        clickedSet = commentInfo.upVoterSet;
-        unclickedSet = commentInfo.downVoterSet;
-    } else if (voteType === this.voteTypeEnum.DOWN) {
-        clickedSet = commentInfo.downVoterSet;
-        unclickedSet = commentInfo.upVoterSet;
-    }
-    else {
-        return;
-    }
-
-    if (this.auth.user.uid in clickedSet) {
-        delete clickedSet[this.auth.user.uid];
+    if (this.votesForTopic[commentInfo.$id][this.auth.user.uid] === voteType) {
+        this.votesForTopic[commentInfo.$id][this.auth.user.uid] = this.voteTypeEnum.NO_VOTE;
     } else {
-        clickedSet[this.auth.user.uid] = true;
-        delete unclickedSet[this.auth.user.uid];
+        this.votesForTopic[commentInfo.$id][this.auth.user.uid] = voteType;
     }
-    this.commentsForTopic.$save();
+
+    this.votesForTopic.$save();
 };
 
 MainCtrl.prototype.getCommentScore = function(commentInfo) {
-    //Create these sets if they don't exist
-    commentInfo.upVoterSet = commentInfo.upVoterSet || {};
-    commentInfo.downVoterSet = commentInfo.downVoterSet || {};
+    this.votesForTopic[commentInfo.$id] = this.votesForTopic[commentInfo.$id] || {};
 
-    return Object.keys(commentInfo.upVoterSet).length - Object.keys(commentInfo.downVoterSet).length;
+    var score = 0;
+
+    var votesForComment = this.votesForTopic[commentInfo.$id];
+
+    for (var uid in votesForComment) {
+        if (votesForComment.hasOwnProperty(uid)) {
+            score += votesForComment[uid];
+        }
+    }
+
+    return score;
 };
 
+
 MainCtrl.prototype.userHasUpVotedComment = function(commentInfo) {
-    return commentInfo.upVoterSet && this.auth.user && this.auth.user.uid in commentInfo.upVoterSet;
+    return this.userHasMatchingVoteTypeForComment(commentInfo, this.voteTypeEnum.UP);
 };
 
 MainCtrl.prototype.userHasDownVotedComment = function(commentInfo) {
-    return commentInfo.downVoterSet && this.auth.user && this.auth.user.uid in commentInfo.downVoterSet;
+    return this.userHasMatchingVoteTypeForComment(commentInfo, this.voteTypeEnum.DOWN);
 };
 
-MainCtrl.prototype.getSortField = function(commentInfo) {
-    return this.getCommentScore(commentInfo);
+MainCtrl.prototype.userHasMatchingVoteTypeForComment = function(commentInfo, voteType) {
+    var votesForComment = this.votesForTopic[commentInfo.$id];
+
+    return votesForComment &&
+        this.auth.user &&
+        votesForComment[this.auth.user.uid] === voteType;
 };
 
 MainCtrl.prototype.deleteComment = function(commentInfo) {
