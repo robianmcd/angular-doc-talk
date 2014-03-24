@@ -95,7 +95,7 @@ MainCtrl.prototype.postComment = function() {
         comment: this.userComment,
         creationDate: new Date(),
         poster: {
-            pic: this.auth.user.thirdPartyUserData.picture,
+            pic: this.auth.user.picture,
             name: this.auth.user.displayName,
             uid: this.auth.user.uid
         }
