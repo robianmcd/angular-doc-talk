@@ -9,8 +9,9 @@ var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $lo
 
     this.voteTypeEnum = {DOWN: -1, UP: 1};
 
-    if (!endpoints) {
-        var endpoints = {
+    //Setup some default endpoints if no endpoints.js file is supplied.
+    if (typeof endpoints === 'undefined') {
+        window.endpoints = {
             firebaseUrl: 'https://angular-doc-talk.firebaseio.com'
         };
     }
