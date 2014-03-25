@@ -10,14 +10,7 @@ var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $lo
     this.voteTypeEnum = {DOWN: -1, UP: 1};
     this.commentForm = {};
 
-    //Setup some default endpoints if no endpoints.js file is supplied.
-    if (typeof endpoints === 'undefined') {
-        window.endpoints = {
-            firebaseUrl: 'https://angular-doc-talk.firebaseio.com'
-        };
-    }
-
-    this.dbRef = new Firebase(endpoints.firebaseUrl);
+    this.dbRef = new Firebase('https://angular-doc-talk.firebaseio.com');
     this.auth = $firebaseSimpleLogin(this.dbRef);
 
     $rootScope.$on("$firebaseSimpleLogin:login", function(e, user) {
