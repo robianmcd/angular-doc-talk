@@ -8,6 +8,7 @@ var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $lo
     this.$firebase = $firebase;
 
     this.voteTypeEnum = {DOWN: -1, UP: 1};
+    this.commentForm = {};
 
     //Setup some default endpoints if no endpoints.js file is supplied.
     if (typeof endpoints === 'undefined') {
@@ -20,7 +21,7 @@ var MainCtrl = function($scope, $rootScope, $firebaseSimpleLogin, $firebase, $lo
     this.auth = $firebaseSimpleLogin(this.dbRef);
 
     $rootScope.$on("$firebaseSimpleLogin:login", function(e, user) {
-        _this.$firebase(_this.dbRef.child('user/' + user.uid)).$bind($scope, 'ctrl.userComment')
+        _this.$firebase(_this.dbRef.child('user/' + user.uid)).$bind($scope, 'ctrl.commentForm')
             .then(function(unbind) {
                 _this.unbindUser = unbind;
             });
@@ -92,7 +93,7 @@ MainCtrl.prototype.logout = function() {
 
 MainCtrl.prototype.postComment = function() {
     this.commentsForTopic.$add({
-        comment: this.userComment,
+        comment: this.commentForm.comment,
         creationDate: new Date(),
         poster: {
             pic: this.auth.user.picture,
@@ -101,7 +102,7 @@ MainCtrl.prototype.postComment = function() {
         }
     });
 
-    this.userComment = "";
+    this.commentForm.comment = "";
 };
 
 MainCtrl.prototype.vote = function(commentInfo, voteType) {
