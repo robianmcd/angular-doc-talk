@@ -1,4 +1,5 @@
 {
   "firebase": "angular-doc-talk",
-  "public": "."
+  "public": ".",
+  "rules": "./config/securityRules.json"
 }

@@ -1,0 +1,27 @@
+{
+    "rules": {
+        ".read": true,
+        "comments": {
+            "$topic": {
+                "$commentId": {
+                    ".write": "(!data.exists() || data.child('poster').child('uid').val() == auth.uid) && (!newData.exists() || newData.child('poster').child('uid').val() == auth.uid)"
+                }
+            }
+        },
+        "votes": {
+            "$topic": {
+                "$commentId": {
+                    "$userId": {
+                        ".write": "$userId == auth.uid",
+                        ".validate": "newData.val() == 1 || newData.val() == -1"
+                    }
+                }
+            }
+        },
+        "user": {
+            "$userId": {
+                ".write": "$userId == auth.uid"
+            }
+        }
+    }
+}
